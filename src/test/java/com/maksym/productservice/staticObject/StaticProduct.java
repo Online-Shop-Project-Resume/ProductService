@@ -18,6 +18,6 @@ public class StaticProduct {
     }
     public static ProductRequest productRequest1(){
         ProductType productType = new ProductType(1L,"type");
-        return new ProductRequest("Product 1", "Description", productType, BigDecimal.ONE);
+        return new ProductRequest("Product 1", "Description 1", productType, BigDecimal.ONE);
     }
 }

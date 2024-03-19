@@ -2,9 +2,9 @@ package com.maksym.productservice.service;
 
 import com.maksym.productservice.dto.ProductTypeRequest;
 import com.maksym.productservice.dtoMapper.ProductTypeRequestMapper;
-import com.maksym.productservice.exception.EntityNotFoundException;
 import com.maksym.productservice.model.ProductType;
 import com.maksym.productservice.repository.ProductTypeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,5 +41,10 @@ public class ProductTypeServiceImpl implements ProductTypeService {
     @Override
     public List<ProductType> getAll() {
         return productTypeRepository.findAll();
+    }
+
+    @Override
+    public ProductType getById(Long id) {
+        return productTypeRepository.findById(id).orElseThrow(()->new EntityNotFoundException("ProductType with id: "+id+" is not found"));
     }
 }

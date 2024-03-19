@@ -3,7 +3,6 @@ package com.maksym.productservice.controller;
 import com.maksym.productservice.controllers.ProductController;
 import com.maksym.productservice.dto.ProductRequest;
 import com.maksym.productservice.exception.GlobalExceptionHandler;
-import com.maksym.productservice.exception.EntityNotFoundException;
 import com.maksym.productservice.model.Product;
 import com.maksym.productservice.service.ProductService;
 import com.maksym.productservice.staticObject.StaticProduct;
@@ -128,11 +127,4 @@ public class ProductControllerTest {
         mockMvc.perform(delete("/api/products/1"))
                 .andExpect(status().isNoContent());
     }
-//    TODO
-//    @Test
-//    public void testHandleUserNotFoundException() throws Exception {
-//        when(productService.get(1L)).thenThrow(EntityNotFoundException.class);
-//        mockMvc.perform(get("/api/products/invalidId"))
-//                .andExpect(status().isNotFound());
-//    }
 }

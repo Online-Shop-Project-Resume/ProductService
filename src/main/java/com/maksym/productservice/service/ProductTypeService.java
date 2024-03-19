@@ -10,5 +10,6 @@ public interface ProductTypeService {
     public Boolean deleteById(Long id);
     public ProductType update(Long id, ProductTypeRequest request);
     public List<ProductType> getAll();
+    public ProductType getById(Long id);
 
 }

@@ -2,10 +2,10 @@ package com.maksym.productservice.service;
 
 import com.maksym.productservice.dto.ProductRequest;
 import com.maksym.productservice.dtoMapper.RequestMapper;
-import com.maksym.productservice.exception.EntityNotFoundException;
 import com.maksym.productservice.model.Product;
 import com.maksym.productservice.repository.ProductRepository;
 import com.maksym.productservice.staticObject.StaticProduct;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -51,7 +51,7 @@ public class ProductServiceTest {
         Long id = 1L;
         ProductRequest request = StaticProduct.productRequest1();
         Product product = StaticProduct.product1();
-        Mockito.when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        Mockito.when(productRepository.existsById(id)).thenReturn(true);
         Mockito.when(productRepository.save(Mockito.any())).thenReturn(product);
         Product response = productService.update(id, request);
         assertEquals(request.getDescription(), response.getDescription());

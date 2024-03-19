@@ -31,8 +31,15 @@ public class ProductTypeController {
         return new ResponseEntity<>(productTypeService.getAll(), HttpStatus.OK);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Object> deleteById(Long id){
-        return new ResponseEntity<>(productTypeService.deleteById(id), HttpStatus.NO_CONTENT);
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> get(@PathVariable("id") Long id){
+        return new ResponseEntity<>(productTypeService.getById(id), HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> deleteById(@PathVariable Long id){
+        productTypeService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

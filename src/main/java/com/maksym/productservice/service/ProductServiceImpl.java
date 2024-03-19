@@ -2,11 +2,10 @@ package com.maksym.productservice.service;
 
 import com.maksym.productservice.dtoMapper.RequestMapper;
 import com.maksym.productservice.dto.ProductRequest;
-import com.maksym.productservice.exception.EntityNotFoundException;
 import com.maksym.productservice.model.Product;
-import com.maksym.productservice.model.ProductType;
 import com.maksym.productservice.repository.ProductRepository;
 import com.maksym.productservice.repository.ProductTypeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +16,15 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
-    private final ProductTypeRepository productTypeRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository, ProductTypeRepository productTypeRepository) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.productTypeRepository = productTypeRepository;
     }
 
     @Override
     public Product add(ProductRequest productRequest) {
-        Product product = RequestMapper.toProduct(productRequest);
         log.info("Product add: {}",productRequest);
+        Product product = RequestMapper.toProduct(productRequest);
         return productRepository.save(product);
     }
 
@@ -39,19 +36,10 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product update(Long id, ProductRequest productRequest) {
-        Product product = RequestMapper.toProduct(productRequest);
-        product.setId(id);
-        Product updatedProduct = productRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("User with id: "+id+ " doesn't exist."));
-        if (product.getName() != null && !product.getName().isBlank()) {
-            updatedProduct.setName(product.getName());
-        }
-        if (product.getDescription() != null && !product.getDescription().isBlank()) {
-            updatedProduct.setDescription(product.getDescription());
-        }
-        if (product.getPrice() != null) {
-            updatedProduct.setPrice(product.getPrice());
-        }
         log.info("Product update by id: {}, product: {}", id, productRequest);
+        Product updatedProduct = RequestMapper.toProduct(productRequest);
+        updatedProduct.setId(id);
+        if(!productRepository.existsById(id)) throw new EntityNotFoundException("User with id: "+id+ " doesn't exist.");
         return productRepository.save(updatedProduct);
     }
 

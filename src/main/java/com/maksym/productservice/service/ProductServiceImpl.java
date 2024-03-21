@@ -24,6 +24,7 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public Product add(ProductRequest productRequest) {
         log.info("Product add: {}",productRequest);
+
         Product product = RequestMapper.toProduct(productRequest);
         return productRepository.save(product);
     }
@@ -53,5 +54,11 @@ public class ProductServiceImpl implements ProductService{
     public List<Product> getAll() {
         log.info("Product get all");
         return productRepository.findAll();
+    }
+
+    @Override
+    public Boolean exist(Long id) {
+        log.info("Product exists by id: {}", id);
+        return productRepository.existsById(id);
     }
 }

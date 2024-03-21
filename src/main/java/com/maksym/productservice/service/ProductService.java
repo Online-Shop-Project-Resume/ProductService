@@ -11,4 +11,6 @@ public interface ProductService{
     public Product update(Long id, ProductRequest productRequest);
     public Product get(Long id);
     public List<Product> getAll();
+
+    Boolean exist(Long id);
 }

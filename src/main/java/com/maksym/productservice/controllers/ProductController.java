@@ -2,6 +2,7 @@ package com.maksym.productservice.controllers;
 
 import com.maksym.productservice.dto.ProductRequest;
 import com.maksym.productservice.service.ProductService;
+import com.maksym.productservice.service.ProductServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductServiceImpl productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductServiceImpl productService) {
         this.productService = productService;
     }
 
@@ -24,6 +25,11 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getProduct(@PathVariable("id") Long id){
         return new ResponseEntity<>(productService.get(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Object> existsProduct(@PathVariable("id") Long id){
+        return new ResponseEntity<>(productService.exist(id), HttpStatus.OK);
     }
 
     @GetMapping()

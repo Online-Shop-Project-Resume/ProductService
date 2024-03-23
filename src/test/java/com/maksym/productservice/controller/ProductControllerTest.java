@@ -5,11 +5,14 @@ import com.maksym.productservice.dto.ProductRequest;
 import com.maksym.productservice.exception.GlobalExceptionHandler;
 import com.maksym.productservice.model.Product;
 import com.maksym.productservice.service.ProductService;
+import com.maksym.productservice.service.ProductServiceImpl;
 import com.maksym.productservice.staticObject.StaticProduct;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,20 +31,19 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+@ExtendWith(MockitoExtension.class)
 public class ProductControllerTest {
 
     private MockMvc mockMvc;
 
     @Mock
-    private ProductService productService;
+    private ProductServiceImpl productService;
 
     @InjectMocks
     private ProductController productController;
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(productController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();

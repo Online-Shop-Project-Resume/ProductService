@@ -3,15 +3,19 @@ package com.maksym.productservice.service;
 import com.maksym.productservice.dto.ProductTypeRequest;
 import com.maksym.productservice.model.ProductType;
 import com.maksym.productservice.repository.ProductTypeRepository;
+import com.maksym.productservice.staticObject.StaticProduct;
+import com.maksym.productservice.staticObject.StaticProductType;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -27,8 +31,8 @@ public class ProductTypeServiceTest {
     @Test
     void testAddProductType() {
         // Given
-        ProductTypeRequest request = new ProductTypeRequest(/* Add necessary details */);
-        ProductType productType = new ProductType(/* Add necessary details */);
+        ProductTypeRequest request = StaticProductType.productTypeRequest1();
+        ProductType productType = StaticProductType.productType1();
         when(productTypeRepository.save(any(ProductType.class))).thenReturn(productType);
 
         // When

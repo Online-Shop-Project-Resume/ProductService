@@ -24,7 +24,6 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public Product add(ProductRequest productRequest) {
         log.info("Product add: {}",productRequest);
-
         Product product = RequestMapper.toProduct(productRequest);
         return productRepository.save(product);
     }

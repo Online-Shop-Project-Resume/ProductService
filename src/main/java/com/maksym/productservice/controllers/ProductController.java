@@ -1,7 +1,6 @@
 package com.maksym.productservice.controllers;
 
 import com.maksym.productservice.dto.ProductRequest;
-import com.maksym.productservice.service.ProductService;
 import com.maksym.productservice.service.ProductServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,5 +45,8 @@ public class ProductController {
     public ResponseEntity<Object> delete(@PathVariable("id") Long id){
         productService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    public ResponseEntity<Object> companyBreakerFallback(Exception e){
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 }

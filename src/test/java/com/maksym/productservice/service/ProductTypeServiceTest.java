@@ -1,116 +1,148 @@
 package com.maksym.productservice.service;
 
-import com.maksym.productservice.dto.ProductTypeRequest;
+
+import com.maksym.productservice.exception.EntityNotFoundException;
 import com.maksym.productservice.model.ProductType;
 import com.maksym.productservice.repository.ProductTypeRepository;
-import com.maksym.productservice.staticObject.StaticProduct;
 import com.maksym.productservice.staticObject.StaticProductType;
-import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class ProductTypeServiceTest {
+class ProductTypeServiceTest {
 
     @Mock
     private ProductTypeRepository productTypeRepository;
-
     @InjectMocks
-    private ProductTypeServiceImpl productTypeService;
+    private ProductTypeService productTypeService;
+    private final ProductType productType = StaticProductType.productType1();
+    private final ProductType productType2 = StaticProductType.productType2();
 
-    @Test
-    void testAddProductType() {
-        // Given
-        ProductTypeRequest request = StaticProductType.productTypeRequest1();
-        ProductType productType = StaticProductType.productType1();
-        when(productTypeRepository.save(any(ProductType.class))).thenReturn(productType);
-
-        // When
-        ProductType addedProductType = productTypeService.add(request);
-
-        // Then
-        assertNotNull(addedProductType);
-        // Add additional assertions as needed
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testDeleteProductType() {
-        // Given
-        Long productTypeId = 1L;
+    void testCreate() {
+	    when(productTypeRepository.save(any(ProductType.class))).thenReturn(productType);
 
-        // When
-        boolean deleted = productTypeService.deleteById(productTypeId);
+        ProductType createdProductType = productTypeService.create(productType);
 
-        // Then
-        assertTrue(deleted);
-        verify(productTypeRepository, times(1)).deleteById(productTypeId);
+        assertNotNull(createdProductType);
+        assertEquals(productType, createdProductType);
+        verify(productTypeRepository, times(1)).save(productType);
     }
 
     @Test
-    void testUpdateProductType() {
-        // Given
-        Long productTypeId = 1L;
-        ProductTypeRequest request = new ProductTypeRequest(/* Add necessary details */);
-        ProductType productType = new ProductType(/* Add necessary details */);
-        when(productTypeRepository.findById(productTypeId)).thenReturn(Optional.of(productType));
-        when(productTypeRepository.save(any(ProductType.class))).thenReturn(productType);
+    void testCreate_DataAccessException() {
+        when(productTypeRepository.findById(StaticProductType.ID)).thenThrow(new DataAccessException("Database connection failed") {
+        });
 
-        // When
-        ProductType updatedProductType = productTypeService.update(productTypeId, request);
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> productTypeService.getById(StaticProductType.ID));
 
-        // Then
-        assertNotNull(updatedProductType);
-        // Add additional assertions as needed
+        assertNotNull(exception);
+        assertEquals("Database connection failed", exception.getMessage());
+        verify(productTypeRepository, times(1)).findById(StaticProductType.ID);
     }
 
     @Test
-    void testGetAllProductTypes() {
-        // Given
+    void testGetAll() {
         List<ProductType> productTypeList = new ArrayList<>();
-        // Add some mock product types to the list
+        productTypeList.add(productType);
+        productTypeList.add(productType2);
+        Page<ProductType> productTypePage = new PageImpl<>(productTypeList);
+        Pageable pageable = Pageable.unpaged();
+        when(productTypeRepository.findAll(pageable)).thenReturn(productTypePage);
 
-        when(productTypeRepository.findAll()).thenReturn(productTypeList);
+        Page<ProductType> result = productTypeService.getAll(pageable);
 
-        // When
-        List<ProductType> retrievedProductTypes = productTypeService.getAll();
-
-        // Then
-        assertNotNull(retrievedProductTypes);
-        // Add additional assertions as needed
+        assertEquals(productTypeList.size(), result.getSize());
+        assertEquals(productType, result.getContent().get(0));
+        assertEquals(productType2, result.getContent().get(1));
     }
 
     @Test
-    void testGetProductTypeById() {
-        // Given
-        Long productTypeId = 1L;
-        ProductType expectedProductType = new ProductType(/* Add necessary details */);
-        when(productTypeRepository.findById(productTypeId)).thenReturn(Optional.of(expectedProductType));
+    void testGetAll_AnyException() {
+        when(productTypeRepository.findAll(any(Pageable.class))).thenThrow(new DataAccessException("Database connection failed") {});
 
-        // When
-        ProductType retrievedProductType = productTypeService.getById(productTypeId);
+        Pageable pageable = Pageable.unpaged();
+        RuntimeException exception = assertThrows(DataAccessException.class, () -> productTypeService.getAll(pageable));
 
-        // Then
-        assertNotNull(retrievedProductType);
-        assertEquals(expectedProductType, retrievedProductType);
+        assertNotNull(exception);
+        assertEquals("Database connection failed", exception.getMessage());
+        verify(productTypeRepository, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
-    void testGetProductTypeById_NotFound() {
-        // Given
-        Long productTypeId = 1L;
-        when(productTypeRepository.findById(productTypeId)).thenReturn(Optional.empty());
+    void testUpdate_Success() {
+	    ProductType existingProductType = StaticProductType.productType1();
+        ProductType updatedProductType = StaticProductType.productType2();
+	    when(productTypeRepository.findById(StaticProductType.ID)).thenReturn(java.util.Optional.of(existingProductType));
+        when(productTypeRepository.save(updatedProductType)).thenReturn(updatedProductType);
 
-        // When / Then
-        assertThrows(EntityNotFoundException.class, () -> productTypeService.getById(productTypeId));
+        ProductType result = productTypeService.updateById(StaticProductType.ID, updatedProductType);
+
+        assertEquals(updatedProductType, result);
+        verify(productTypeRepository, times(1)).findById(StaticProductType.ID);
+        verify(productTypeRepository, times(1)).save(updatedProductType);
+    }
+
+
+    @Test
+    void testUpdateById_EntityNotFoundException() {
+        ProductType updatedProductType = StaticProductType.productType1();
+        when(productTypeRepository.findById(StaticProductType.ID)).thenReturn(java.util.Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> productTypeService.updateById(StaticProductType.ID, updatedProductType));
+        verify(productTypeRepository, times(1)).findById(StaticProductType.ID);
+        verify(productTypeRepository, never()).save(updatedProductType);
+    }
+
+    @Test
+    void testUpdateById_AnyException() {
+        ProductType existingProductType = StaticProductType.productType1();
+        ProductType updatedProductType = StaticProductType.productType2();
+        when(productTypeRepository.findById(StaticProductType.ID)).thenReturn(java.util.Optional.of(existingProductType));
+	    when(productTypeRepository.save(updatedProductType)).thenThrow(new DataAccessException("Database connection failed") {
+        });
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> productTypeService.updateById(StaticProductType.ID, updatedProductType));
+
+        assertNotNull(exception);
+        assertEquals("Database connection failed", exception.getMessage());
+        verify(productTypeRepository, times(1)).save(updatedProductType);
+    }
+
+    @Test
+    void testDeleteById_Success() {
+        boolean result = productTypeService.deleteById(StaticProductType.ID);
+
+        verify(productTypeRepository).deleteById(StaticProductType.ID);
+        assertTrue(result);
+    }
+
+    @Test
+    void testDeleteById_AnyException() {
+        doThrow(new DataAccessException("Database connection failed") {}).when(productTypeRepository).deleteById(StaticProductType.ID);
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> productTypeService.deleteById(StaticProductType.ID));
+
+        assertNotNull(exception);
+        assertEquals("Database connection failed", exception.getMessage());
+        verify(productTypeRepository, times(1)).deleteById(StaticProductType.ID);
     }
 }
